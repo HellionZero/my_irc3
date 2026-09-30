@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 15:17:14 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/09/30 16:44:35 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:48:04 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,13 @@ Server::Server(int port, const std::string &password)
 
 Server::~Server()
 {
-	std::vector<pollfd>::iterator it = _pollFds.begin();
-	while (it != _pollFds.end())
+    for (ClientIt it = _clients.begin(); it != _clients.end(); ++it)
+        delete it->second;
+    _clients.clear();
+    if (_listenSocket >= 0)
 	{
-		close(it->fd);
-		++it;
+        close(_listenSocket);
+        _listenSocket = -1;
 	}
 }
 
@@ -90,103 +92,252 @@ void Server::buildPollFds(void)
 	_pollFds.push_back(listeningPollFd);
 }
 
-void Server::handleEvents(void)
+void Server::handleEvents()
 {
-	int ready = poll(&_pollFds[0], _pollFds.size(), -1);
-	if (ready < 0)
-	{
-		if (errno == EINTR)
-			return;
-		throw std::runtime_error("poll failed");
-	}
-	if (_pollFds[0].revents & POLLIN)
-		acceptNewClient();
-	for (std::size_t index = 1; index < _pollFds.size(); ++index)
-	{
-		short events = _pollFds[index].revents;
-		int clientSocket = _pollFds[index].fd;
-		if (events & (POLLERR | POLLHUP | POLLNVAL))
-		{
-			removeClient(clientSocket);
-			--index;
-		}
-		else if (events & POLLIN)
-		{
-			handleClientInput(clientSocket);
-			if (index >= _pollFds.size() || _pollFds[index].fd != clientSocket)
-				--index;
-		}
-	}
+    int ready = poll(&_pollFds[0], _pollFds.size(), -1);
+    if (ready < 0)
+    {
+        if (errno == EINTR)
+            return;
+        throw std::runtime_error("poll failed");
+    }
+
+    // copia para iterar com segurança: disconnectClient pode alterar _pollFds
+    std::vector<struct pollfd> events = _pollFds;
+
+    for (std::size_t i = 0; i < events.size(); ++i)
+    {
+        int fd = events[i].fd;
+        short revents = events[i].revents;
+
+        if (revents == 0)
+            continue;
+
+        if (fd == _listenSocket)
+        {
+            if (revents & POLLIN)
+                acceptNewClient();
+            continue;
+        }
+
+        // cliente
+        if (revents & (POLLERR | POLLHUP | POLLNVAL))
+        {
+            disconnectClient(fd);
+            continue;
+        }
+
+        if (revents & POLLIN)
+            handleClientInput(fd);
+
+        // revalida: handleClientInput pode ter deletado
+        if (_clients.find(fd) == _clients.end())
+            continue;
+
+        if (revents & POLLOUT)
+            handleClientOutput(fd);
+    }
 }
 
-void Server::acceptNewClient(void)
+void Server::acceptNewClient()
 {
-	int clientSocket = accept(_listenSocket, NULL, NULL);
-	if (clientSocket < 0)
-	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return;
-		throw std::runtime_error("Could not accept client connection");
-	}
-	try
-	{
-		setNonBlocking(clientSocket);
-	}
-	catch (const std::exception &error)
-	{
-		close(clientSocket);
-		return;
-	}
-	pollfd clientPollFd;
-	clientPollFd.fd = clientSocket;
-	clientPollFd.events = POLLIN;
-	clientPollFd.revents = 0;
-	_pollFds.push_back(clientPollFd);
+    struct sockaddr_in peer;
+    socklen_t peerLen = sizeof(peer);
+
+    int clientFd = accept(_listenSocket, (struct sockaddr *)&peer, &peerLen);
+    if (clientFd < 0)
+        return;   // EAGAIN/EWOULDBLOCK: normal on non-blocking sockets
+
+    try
+    {
+        setNonBlocking(clientFd);
+    }
+    catch (const std::exception &error)
+    {
+        close(clientFd);
+        return;
+    }
+
+    char hostBuf[INET_ADDRSTRLEN];
+    if (inet_ntop(AF_INET, &peer.sin_addr, hostBuf, sizeof(hostBuf)) == NULL)
+    {
+        close(clientFd);
+        return;
+    }
+
+    Client *client = new Client(clientFd, std::string(hostBuf));
+    _clients.insert(std::make_pair(clientFd, client));
+
+    // temporary MVP: echoes back a message to the client upon connection
+    client->queueOutput(":server NOTICE * :Connected. MVP mode.\r\n");
+
+    pollfd clientPollFd;
+
+    clientPollFd.fd = clientFd;
+    clientPollFd.events = POLLIN | POLLOUT;
+    clientPollFd.revents = 0;
+    _pollFds.push_back(clientPollFd);
 }
 
-void Server::removeClient(int clientSocket)
+void Server::handleClientInput(int clientFd)
 {
-	for (std::vector<pollfd>::iterator it = _pollFds.begin();
-		it != _pollFds.end(); ++it)
-	{
-		if (it->fd == clientSocket)
-		{
-			close(clientSocket);
-			_pollFds.erase(it);
-			return;
-		}
-	}
+    Client *client = findClientByFd(clientFd);
+    if (client == NULL)
+        return;
+
+    char buf[4096];
+    const std::size_t maxBytesPerEvent = 16 * 1024;
+    std::size_t bytesReadThisEvent = 0;
+    bool peerClosed = false;
+
+    while (bytesReadThisEvent < maxBytesPerEvent)
+    {
+        std::size_t bytesToRead = maxBytesPerEvent - bytesReadThisEvent;
+        if (bytesToRead > sizeof(buf))
+            bytesToRead = sizeof(buf);
+
+        ssize_t n = recv(clientFd, buf, bytesToRead, 0);
+
+        if (n > 0)
+        {
+            client->appendInput(buf, static_cast<std::size_t>(n));
+            bytesReadThisEvent += static_cast<std::size_t>(n);
+            continue;
+        }
+        if (n == 0)
+        {
+            peerClosed = true;
+            break;
+        }
+        if (errno == EAGAIN || errno == EWOULDBLOCK)
+            break;
+
+        // real error
+        disconnectClient(clientFd);
+        return;
+    }
+
+    // extract complete lines from the client's input buffer and process them
+    std::string line;
+    while (client->popLine(line))
+    {
+        processLine(client, line);
+
+        // return if the client was disconnected during processing
+        if (_clients.find(clientFd) == _clients.end())
+            return;
+    }
+
+    if (peerClosed)
+    {
+        client->setState(Client::DISCONNECTING);
+        if (!client->hasPendingOutput())
+            disconnectClient(clientFd);
+    }
 }
 
-void Server::handleClientInput(int clientSocket)
+void Server::handleClientOutput(int clientFd)
 {
-	char buffer[4096];
-	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
-	if (bytesRead == 0)
-	{
-		removeClient(clientSocket);
-		return;
-	}
-	if (bytesRead < 0)
-	{
-		if (errno != EAGAIN && errno != EWOULDBLOCK)
-			removeClient(clientSocket);
-		return;
-	}
-	BroadcastMessage(std::string(buffer, bytesRead), clientSocket);
+    Client *client = findClientByFd(clientFd);
+    if (client == NULL)
+        return;
+
+    const std::string &buf = client->outputBuffer();
+    if (!buf.empty())
+    {
+        ssize_t n = send(clientFd, buf.data(), buf.size(), 0);
+        if (n > 0)
+        {
+            client->consumeOutput(static_cast<std::size_t>(n));
+            if (!client->hasPendingOutput())
+            {
+                for (std::vector<pollfd>::iterator it = _pollFds.begin();
+                    it != _pollFds.end(); ++it)
+                {
+                    if (it->fd == clientFd)
+                    {
+                        it->events = static_cast<short>(it->events & ~POLLOUT);
+                        break;
+                    }
+                }
+            }
+        }
+        else if (n < 0 && errno != EAGAIN && errno != EWOULDBLOCK)
+        {
+            disconnectClient(clientFd);
+            return;
+        }
+    }
+
+    // disconnect if the client is in DISCONNECTING state and has no pending output
+    if (client->getState() == Client::DISCONNECTING
+        && !client->hasPendingOutput())
+    {
+        disconnectClient(clientFd);
+    }
 }
 
-void Server::handleClientOutput(int clientSocket)
+void Server::disconnectClient(int clientFd)
 {
-	(void)clientSocket;
+    ClientIt it = _clients.find(clientFd);
+    if (it == _clients.end())
+        return;
+
+    Client *client = it->second;
+
+    // 1. remove client from all channels and delete empty channels (not implemented yet)
+
+    // 2. removes from map and deletes the client (which closes the fd)
+    _clients.erase(it);
+    delete client;   // ~Client closes the fd
+
+    for (std::vector<pollfd>::iterator pollIt = _pollFds.begin();
+        pollIt != _pollFds.end(); ++pollIt)
+    {
+        if (pollIt->fd == clientFd)
+        {
+            _pollFds.erase(pollIt);
+            break;
+        }
+    }
 }
 
-void Server::BroadcastMessage(const std::string &message, int senderSocket)
+// ============================================================================
+// I/O helpers
+// ============================================================================
+
+void Server::sendToClient(Client *client, const std::string &message)
 {
-	for (std::vector<pollfd>::iterator it = _pollFds.begin();
-		it != _pollFds.end(); ++it)
-	{
-		if (it->fd != _listenSocket && it->fd != senderSocket)
-			send(it->fd, message.c_str(), message.size(), 0);
-	}
+    if (client == NULL)
+        return;
+    client->queueOutput(message);
+    for (std::vector<pollfd>::iterator it = _pollFds.begin();
+        it != _pollFds.end(); ++it)
+    {
+        if (it->fd == client->getFd())
+        {
+            it->events = static_cast<short>(it->events | POLLOUT);
+            break;
+        }
+    }
+}
+
+
+void Server::processLine(Client *client, const std::string &line)
+{
+    // MVP: echo the line back to test I/O
+    // substitute later for: dispatchCommand(client, Parser::parse(line));
+    sendToClient(client, line + "\r\n");
+}
+
+// ============================================================================
+// Domain helpers
+// ============================================================================
+
+Client *Server::findClientByFd(int fd)
+{
+    ClientIt it = _clients.find(fd);
+    if (it == _clients.end())
+        return NULL;
+    return it->second;
 }

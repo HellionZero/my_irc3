@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/mini_irc.hpp"
+#include "../include/Server.hpp"
 
 static void handleSigint(int signal)
 {

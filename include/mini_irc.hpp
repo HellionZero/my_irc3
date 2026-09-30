@@ -29,7 +29,4 @@
 # include <csignal>
 # include <cerrno>
 # include <ctime>
-# include "Client.hpp"
-# include "Server.hpp"
-
 #endif

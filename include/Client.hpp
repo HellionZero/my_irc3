@@ -6,14 +6,15 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 15:12:34 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/09/30 17:08:15 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:23:15 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
-# include "mini_irc.hpp"
+# include <string>
+# include <cstddef>
 
 class Client
 {

@@ -12,6 +12,8 @@
 
 #include "../include/Client.hpp"
 
+#include <unistd.h>
+
 Client::Client(int socketFd, const std::string &hostname) :
 	_fd(socketFd), _host(hostname), _nick(""), _user(""), _state(HANDSHAKE), _inBuf(""), _outBuf("")
 {}
@@ -58,7 +60,7 @@ bool			Client::popLine(std::string &out)
 
 void Client::queueOutput(const std::string &line)
 {
-    _outBuf += line + "\n";
+    _outBuf += line;
 }
 
 bool Client::hasPendingOutput(void) const

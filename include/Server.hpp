@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 16:20:15 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/09/30 15:58:33 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:24:36 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define SERVER_HPP
 
 # include "mini_irc.hpp"
+# include "Client.hpp"
 
 class Server
 {
@@ -23,6 +24,11 @@ class Server
 
 		void runServer(void);
 	private:
+
+		typedef std::map<int, Client*> 		ClientMap;
+		typedef ClientMap::iterator			ClientIt;
+    	typedef ClientMap::const_iterator	ClientConstIt;
+		
 		Server(const Server &other);
 		Server &operator=(const Server &other);
 
@@ -31,6 +37,7 @@ class Server
 		int 				_listenSocket;
 		bool				_isRunning;
 		std::vector<pollfd>	_pollFds;
+		ClientMap			_clients;
 	
 		/* ----------- I/O layer -------------------*/
 		
@@ -46,13 +53,17 @@ class Server
 		/* Client management */
 
 		void	acceptNewClient(void);
-		void	removeClient(int clientSocket);
-		void	handleClientInput(int clientSocket);
-		void	handleClientOutput(int clientSocket);
-		
-		/* Utility functions */
+		void	handleClientInput(int clientFd);
+		void	handleClientOutput(int clientFd);
+		void	disconnectClient(int clientFd);
 
-		void	BroadcastMessage(const std::string &message, int senderSocket);
+		void sendToClient(Client *client, const std::string &message);
+
+		/* Protocol layer */
+		void processLine(Client *client, const std::string &line);
+		
+		/* Domain layer */
+		 Client  *findClientByFd(int fd);
 };
 
 #endif

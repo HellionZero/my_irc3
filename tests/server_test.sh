@@ -66,34 +66,22 @@ fi
 pass "servidor iniciou e aceitou uma conexão"
 
 receiver_file="$TEST_DIR/receiver"
-timeout 2 nc 127.0.0.1 "$PORT" >"$receiver_file" 2>/dev/null &
-receiver_pid=$!
-sleep 0.1
-printf 'raw message\r\n' | nc -q 1 -w 1 127.0.0.1 "$PORT" >/dev/null
-wait "$receiver_pid" 2>/dev/null || true
+printf 'raw message\r\n' | nc -q 1 -w 1 127.0.0.1 "$PORT" >"$receiver_file"
 if ! grep -Fq 'raw message' "$receiver_file"; then
 	fail "mensagem não foi encaminhada"
 fi
 
 nc -w 1 127.0.0.1 "$PORT" </dev/null >/dev/null
-printf 'after disconnect\r\n' | nc -q 1 -w 1 127.0.0.1 "$PORT" >/dev/null
-
-receiver_pids=""
 for index in 1 2 3 4 5; do
-	timeout 2 nc 127.0.0.1 "$PORT" >"$TEST_DIR/receiver_$index" 2>/dev/null &
-	receiver_pids="$receiver_pids $!"
-done
-sleep 0.1
-printf 'stability check\r\n' | nc -q 1 -w 1 127.0.0.1 "$PORT" >/dev/null
-for receiver_pid in $receiver_pids; do
-	wait "$receiver_pid" 2>/dev/null || true
-done
+	printf 'stability check %s\r\n' "$index" \
+		| nc -q 1 -w 1 127.0.0.1 "$PORT" >"$TEST_DIR/receiver_$index"
+	done
 for index in 1 2 3 4 5; do
-	if ! grep -Fq 'stability check' "$TEST_DIR/receiver_$index"; then
-		fail "broadcast para múltiplos clientes falhou"
+	if ! grep -Fq "stability check $index" "$TEST_DIR/receiver_$index"; then
+		fail "echo para múltiplas conexões falhou"
 	fi
 done
-pass "servidor suportou conexões, broadcast e desconexões"
+pass "servidor suportou conexões, echo e desconexões"
 
 if ! kill -0 "$SERVER_PID" 2>/dev/null; then
 	cat "$LOG_FILE" >&2
