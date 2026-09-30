@@ -16,6 +16,7 @@ Server:
 [✅] I/O layer: Implement the socket handling and event loop for the server.
 [  ] Command parser: Implement the command parser and handler for the IRC protocol.
 [  ] User authentication: Implement the user authentication and registration process.
+[  ] Channel management: Implement the channel management and message broadcasting.
 [  ] Error handling: Implement the error handling and logging mechanisms.
 [  ] Protocol layer: Implement the protocol layer for the IRC server, including the message formatting and parsing.
 [  ] Domain layer: Implement the domain layer for the IRC server, including the user and channel management.
