@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 16:20:15 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/09/30 17:24:36 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/01 16:56:03 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "mini_irc.hpp"
 # include "Client.hpp"
+# include "Channel.hpp"
 
 class Server
 {
@@ -28,6 +29,9 @@ class Server
 		typedef std::map<int, Client*> 		ClientMap;
 		typedef ClientMap::iterator			ClientIt;
     	typedef ClientMap::const_iterator	ClientConstIt;
+		typedef std::map<std::string, Channel*>	ChannelMap;
+		typedef ChannelMap::iterator		ChannelIt;
+		typedef ChannelMap::const_iterator	ChannelConstIt;
 		
 		Server(const Server &other);
 		Server &operator=(const Server &other);

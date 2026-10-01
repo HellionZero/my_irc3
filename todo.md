@@ -35,6 +35,7 @@ Parser:
 
 Channel:
 
+08/01/2056
 [  ] Implement the channel management class for the IRC server, including the channel creation, deletion, and user management.
 [  ] Implement the message broadcasting and delivery mechanisms for the channels.
 [  ] Implement the error handling and logging mechanisms for the channel management.
