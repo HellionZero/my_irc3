@@ -29,14 +29,14 @@ Client:
 
 Parser:
 
-[  ] Implement the command parser class for the IRC server, including the command parsing and validation.
+[✅] Implement the command parser class for the IRC server, including the command parsing and validation.
 [  ] Implement the command handler class for the IRC server, including the command execution and response generation.
 [  ] Implement the error handling and logging mechanisms for the command parser.
 
 Channel:
 
 08/01/2056
-[  ] Implement the channel management class for the IRC server, including the channel creation, deletion, and user management.
+[✅] Implement the channel management class for the IRC server, including the channel creation, deletion, and user management.
 [  ] Implement the message broadcasting and delivery mechanisms for the channels.
 [  ] Implement the error handling and logging mechanisms for the channel management.
 
@@ -44,6 +44,11 @@ Command:
 
 [  ] Implement the command class for the IRC server, including the command definition and execution.
 [  ] Implement the error handling and logging mechanisms for the command class.
+
+Bridge:
+
+[  ] Implement the bridge to connect the IRC server with the irssi client, including the message formatting and parsing.
+[  ] Implement the error handling and logging mechanisms for the bridge.
 
 TESTS:
 

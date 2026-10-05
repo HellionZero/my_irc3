@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 16:43:45 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/01 16:57:37 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/01 17:54:30 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #define CHANNEL_HPP
 
 #include "mini_irc.hpp"
-#include <set>
 
 class Channel {
 	private:

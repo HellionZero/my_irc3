@@ -6,17 +6,25 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 15:17:02 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/09/30 16:47:10 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/05 18:46:33 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 
+static volatile sig_atomic_t g_shutdown = 0;
+
+/***
+ * Signal handler for SIGINT. This function will be called when the server receives a SIGINT signal
+ * (usually triggered by pressing Ctrl+C).
+ * The main purpose for this function is to shut down the server gracefully when the user interrupts the program,
+ * avoiding abrupt termination and potential resource leaks.
+ */
 static void handleSigint(int signal)
 {
 	(void)signal;
-	std::cout << "\nServer shutting down...\n";
-	exit(0);
+	g_shutdown = 1;
+
 }
 
 int main(int argc, char **argv)
@@ -42,7 +50,8 @@ int main(int argc, char **argv)
     try
     {
         Server server(port, password);
-        server.runServer();
+        server.runServer(g_shutdown);
+		std::cout << "\nSIGINT received. Shutting down the server..." << std::endl;
     }
     catch (const std::exception &e)
     {

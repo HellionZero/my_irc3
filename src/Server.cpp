@@ -6,22 +6,31 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 15:17:14 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/09/30 17:48:04 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/05 18:38:05 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 
 Server::Server(int port, const std::string &password)
-	: _port(port), _password(password), _listenSocket(-1), _isRunning(false)
+	: _port(port), _password(password), _listenSocket(-1), _isRunning(false), _dispatcher(NULL)
 {
 }
 
 Server::~Server()
 {
+    cleanupResources();
+}
+
+void Server::cleanupResources(void)
+{
     for (ClientIt it = _clients.begin(); it != _clients.end(); ++it)
         delete it->second;
     _clients.clear();
+    for (ChannelIt it = _channels.begin(); it != _channels.end(); ++it)
+        delete it->second;
+    _channels.clear();
+    _pollFds.clear();
     if (_listenSocket >= 0)
 	{
         close(_listenSocket);
@@ -29,13 +38,25 @@ Server::~Server()
 	}
 }
 
-void Server::runServer(void)
+void Server::setDispatcher(IDispatcher *dispatcher)
 {
-	setupServerSocket();
-	buildPollFds();
-	_isRunning = true;
-	while (_isRunning)
-		handleEvents();
+    _dispatcher = dispatcher;
+}
+
+void Server::runServer(volatile sig_atomic_t &shutdownFlag)
+{
+    cleanupResources();
+    _isRunning = false;
+    if (shutdownFlag)
+        return;
+
+    setupServerSocket();
+    buildPollFds();
+    _isRunning = true;
+    std::cout << "Server running on port " << _port << std::endl;
+    while (_isRunning && !shutdownFlag)
+        handleEvents();
+    cleanupResources();
 }
 
 void Server::setupServerSocket(void)
@@ -94,7 +115,7 @@ void Server::buildPollFds(void)
 
 void Server::handleEvents()
 {
-    int ready = poll(&_pollFds[0], _pollFds.size(), -1);
+    int ready = poll(&_pollFds[0], _pollFds.size(), 1000);
     if (ready < 0)
     {
         if (errno == EINTR)
@@ -285,11 +306,22 @@ void Server::disconnectClient(int clientFd)
 
     Client *client = it->second;
 
-    // 1. remove client from all channels and delete empty channels (not implemented yet)
+    for (ChannelIt channelIt = _channels.begin();
+        channelIt != _channels.end();)
+    {
+        Channel *channel = channelIt->second;
+        channel->removeMember(clientFd);
+        if (channel->isEmpty())
+        {
+            delete channel;
+            _channels.erase(channelIt++);
+        }
+        else
+            ++channelIt;
+    }
 
-    // 2. removes from map and deletes the client (which closes the fd)
     _clients.erase(it);
-    delete client;   // ~Client closes the fd
+    delete client;
 
     for (std::vector<pollfd>::iterator pollIt = _pollFds.begin();
         pollIt != _pollFds.end(); ++pollIt)
@@ -325,9 +357,14 @@ void Server::sendToClient(Client *client, const std::string &message)
 
 void Server::processLine(Client *client, const std::string &line)
 {
-    // MVP: echo the line back to test I/O
-    // substitute later for: dispatchCommand(client, Parser::parse(line));
-    sendToClient(client, line + "\r\n");
+	if (_dispatcher == NULL)
+	{
+		sendToClient(client, line + END_HANDLER);
+		return;
+	}
+	std::string response = _dispatcher->dispatch(client, line);
+	if (!response.empty())
+		sendToClient(client, response);
 }
 
 // ============================================================================

@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 15:12:34 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/09/30 17:23:15 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/05 17:48:24 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,9 @@
 class Client
 {
 	public:
+		/***
+		 * enum to represent the state of the client connection.
+		 */
 		enum State
 		{
 			HANDSHAKE,

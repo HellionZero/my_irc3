@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 16:16:19 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/01 17:24:21 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/05 18:06:30 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,14 @@
 # define RESET "\033[0m"
 # define BOLD "\033[1m"
 
+# define SERVER_VERSION "mini_irc v3.0"
+# define END_HANDLER "\r\n"
+
 # include <iostream>
 # include <string>
 # include <vector>
 # include <map>
+# include <set>
 # include <algorithm>
 # include <sys/socket.h>
 # include <arpa/inet.h>
@@ -39,6 +43,10 @@
 # include <cerrno>
 # include <ctime>
 # include <exception>
+
+/***
+ * File to store all the necessary includes, defines, and enums for the mini IRC server project.
+ */
 
 typedef enum fontSelector
 {
