@@ -33,6 +33,11 @@ Parser:
 [  ] Implement the command handler class for the IRC server, including the command execution and response generation.
 [  ] Implement the error handling and logging mechanisms for the command parser.
 
+Dispatcher:
+
+[  ] Implement the dispatcher class for the IRC server, including the command dispatching and response handling.
+[  ] Implement the error handling and logging mechanisms for the dispatcher.
+
 Channel:
 
 08/01/2056

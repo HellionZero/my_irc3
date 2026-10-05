@@ -6,12 +6,16 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 15:17:02 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/05 18:46:33 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/05 18:55:50 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 
+/***
+ * global shutdown flag. This variable is set to 1 when the server receives a SIGINT signal (Ctrl+C).
+ * The main loop of the server checks this flag to determine when to exit gracefully.
+ */
 static volatile sig_atomic_t g_shutdown = 0;
 
 /***
