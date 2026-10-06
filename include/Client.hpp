@@ -50,11 +50,13 @@ class Client
 		/* input */
 
 		void appendInput(const char *data, std::size_t n);
+		std::size_t inputBufferSize(void) const;
+		bool hasCompleteLine(void) const;
 		bool popLine(std::string &line);
 
 		/* output */
 
-		void queueOutput(const std::string &line);
+		bool queueOutput(const std::string &line);
 		bool hasPendingOutput(void) const;
 		const std::string  &outputBuffer(void) const;
 		void consumeOutput(std::size_t n);

@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 16:16:19 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/05 18:06:30 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/06 18:33:47 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,10 @@
 
 # define SERVER_VERSION "mini_irc v3.0"
 # define END_HANDLER "\r\n"
+# define MAX_LINE_LIMIT 512
+# define MAX_INPUT_BUFFER 4096
+# define MAX_OUTPUT_BUFFER 65536
+# define MAX_CYCLE_LINES 16
 
 # include <iostream>
 # include <string>

@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../include/Client.hpp"
+#include "../include/mini_irc.hpp"
 
 #include <unistd.h>
 
@@ -42,6 +43,16 @@ void			Client::appendInput(const char *data, std::size_t n)
     _inBuf.append(data, n);
 }
 
+std::size_t		Client::inputBufferSize(void) const
+{
+	return _inBuf.size();
+}
+
+bool			Client::hasCompleteLine(void) const
+{
+	return _inBuf.find('\n') != std::string::npos;
+}
+
 bool			Client::popLine(std::string &out)
 {
     std::string::size_type pos = _inBuf.find('\n');
@@ -58,9 +69,14 @@ bool			Client::popLine(std::string &out)
     return true;
 }
 
-void Client::queueOutput(const std::string &line)
+bool Client::queueOutput(const std::string &line)
 {
+    if (line.size() > MAX_OUTPUT_BUFFER
+        || _outBuf.size() > MAX_OUTPUT_BUFFER - line.size())
+        return false;
+
     _outBuf += line;
+    return true;
 }
 
 bool Client::hasPendingOutput(void) const
@@ -80,4 +96,3 @@ void Client::consumeOutput(std::size_t n)
     else
         _outBuf.erase(0, n);
 }
-

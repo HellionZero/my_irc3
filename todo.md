@@ -14,6 +14,9 @@ ARCHITETURE:
 Server:
 
 [✅] I/O layer: Implement the socket handling and event loop for the server.
+[✅] Breaking prevention: managing of the client connections and disconnections, including the handling of broken connections.
+[  ] Automated testing: Implement automated tests for the server, including connection, message, and disconnection tests.
+[  ] Logging: Implement logging mechanisms for the server, including error logging and event logging.
 [  ] Command parser: Implement the command parser and handler for the IRC protocol.
 [  ] User authentication: Implement the user authentication and registration process.
 [  ] Channel management: Implement the channel management and message broadcasting.
