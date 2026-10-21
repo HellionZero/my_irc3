@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/01 17:28:59 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/01 17:29:32 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/21 18:07:18 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,5 +14,6 @@
 # define COMMAND_HPP
 
 # include "mini_irc.hpp"
+
 
 #endif

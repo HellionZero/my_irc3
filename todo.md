@@ -15,7 +15,7 @@ Server:
 
 [✅] I/O layer: Implement the socket handling and event loop for the server.
 [✅] Breaking prevention: managing of the client connections and disconnections, including the handling of broken connections.
-[  ] Automated testing: Implement automated tests for the server, including connection, message, and disconnection tests.
+[✅] Automated testing: Implement automated tests for the server, including connection, message, and disconnection tests.
 [  ] Logging: Implement logging mechanisms for the server, including error logging and event logging.
 [  ] Command parser: Implement the command parser and handler for the IRC protocol.
 [  ] User authentication: Implement the user authentication and registration process.
@@ -32,19 +32,19 @@ Client:
 
 Parser:
 
-[✅] Implement the command parser class for the IRC server, including the command parsing and validation.
+[] Implement the command parser class for the IRC server, including the command parsing and validation.
 [  ] Implement the command handler class for the IRC server, including the command execution and response generation.
 [  ] Implement the error handling and logging mechanisms for the command parser.
 
 Dispatcher:
 
-[  ] Implement the dispatcher class for the IRC server, including the command dispatching and response handling.
+[  ] Implement the basic dispatcher implementation and funcionality for the IRC server.
 [  ] Implement the error handling and logging mechanisms for the dispatcher.
 
 Channel:
 
 08/01/2056
-[✅] Implement the channel management class for the IRC server, including the channel creation, deletion, and user management.
+[✅] Implement the channel management class header.
 [  ] Implement the message broadcasting and delivery mechanisms for the channels.
 [  ] Implement the error handling and logging mechanisms for the channel management.
 
@@ -60,6 +60,15 @@ Bridge:
 
 TESTS:
 
-[✅] connection test: test the server's ability to accept incoming connections from clients.
-[✅] message test: test the server's ability to access the server and echo messages back to the clients.
-[✅] disconnection test: test the server's ability to handle client disconnections gracefully.
+server:
+
+[  ] Implement automated tests for the server, including connection, message, and disconnection tests.
+[  ] Implement automated tests for the command parser and handler, including command parsing and validation tests.
+[  ] Implement automated tests for the channel management, including channel creation, deletion, and user management tests.
+
+client:
+
+[✅] Implement automated tests for broken messages and multiple lines.
+[✅] Implement automated tests for the line limits and input buffer.
+[✅] Implement tests for multiple connections and sudden disconections.
+[✅] Implement tests for use of SIGINT.

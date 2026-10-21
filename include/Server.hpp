@@ -25,14 +25,8 @@ class Server
 		 * @param port The port on which the server will listen.
 		 * @param password The password required to connect to the server.
 		 */
-		Server(int port, const std::string &password);
+		Server(int port, const std::string &password, IDispatcher &dispatcher);
 		~Server();
-
-		/**
-		 * @brief Sets the command dispatcher used for complete client lines.
-		 * The server does not take ownership of the dispatcher.
-		 */
-		void setDispatcher(IDispatcher *dispatcher);
 
 		/***
 		 * @brief Run the server. This method will start the server's main loop, accepting new clients and handling their input/output.
@@ -66,7 +60,7 @@ class Server
 		bool				_isRunning;
 		std::vector<pollfd>	_pollFds;
 		ClientMap			_clients;
-		IDispatcher			*_dispatcher;
+		IDispatcher			&_dispatcher;
 
 		/* ----------- I/O LAYER -------------------*/
 

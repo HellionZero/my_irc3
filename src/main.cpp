@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
+#include "../include/Dispatcher.hpp"
 
 /***
  * global shutdown flag. This variable is set to 1 when the server receives a SIGINT signal (Ctrl+C).
@@ -53,7 +54,8 @@ int main(int argc, char **argv)
 
     try
     {
-        Server server(port, password);
+        Dispatcher dispatcher;
+        Server server(port, password, dispatcher);
         server.runServer(g_shutdown);
 		std::cout << "\nSIGINT received. Shutting down the server..." << std::endl;
     }

@@ -12,8 +12,8 @@
 
 #include "../include/Server.hpp"
 
-Server::Server(int port, const std::string &password)
-	: _port(port), _password(password), _listenSocket(-1), _isRunning(false), _dispatcher(NULL)
+Server::Server(int port, const std::string &password, IDispatcher &dispatcher)
+	: _port(port), _password(password), _listenSocket(-1), _isRunning(false), _dispatcher(dispatcher)
 {
 }
 
@@ -36,11 +36,6 @@ void Server::cleanupResources(void)
         close(_listenSocket);
         _listenSocket = -1;
 	}
-}
-
-void Server::setDispatcher(IDispatcher *dispatcher)
-{
-    _dispatcher = dispatcher;
 }
 
 void Server::runServer(volatile sig_atomic_t &shutdownFlag)
@@ -444,12 +439,7 @@ void Server::sendToClient(Client *client, const std::string &message)
 
 void Server::processLine(Client *client, const std::string &line)
 {
-	if (_dispatcher == NULL)
-	{
-		sendToClient(client, line + END_HANDLER);
-		return;
-	}
-	std::string response = _dispatcher->dispatch(client, line);
+	std::string response = _dispatcher.dispatch(client, line);
 	if (!response.empty())
 		sendToClient(client, response);
 }
