@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 16:20:15 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/06 18:13:11 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/23 16:09:17 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 # include "Client.hpp"
 # include "Channel.hpp"
 # include "IDispatcher.hpp"
+# include "ServerTypes.hpp"
+
 class Server
 {
 	public:
@@ -24,6 +26,7 @@ class Server
 		 * @brief Constructor for the Server class.
 		 * @param port The port on which the server will listen.
 		 * @param password The password required to connect to the server.
+		 * @param dispatcher The dispatcher to use for handling commands.
 		 */
 		Server(int port, const std::string &password, IDispatcher &dispatcher);
 		~Server();
@@ -40,14 +43,6 @@ class Server
 		 */
 		void runServer(volatile sig_atomic_t &shutdownFlag);
 	private:
-
-		typedef std::map<int, Client*> 		ClientMap;
-		typedef ClientMap::iterator			ClientIt;
-    	typedef ClientMap::const_iterator	ClientConstIt;
-
-		typedef std::map<std::string, Channel*>	ChannelMap;
-		typedef ChannelMap::iterator		ChannelIt;
-		typedef ChannelMap::const_iterator	ChannelConstIt;
 
 		ChannelMap	_channels;
 

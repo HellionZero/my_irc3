@@ -7,6 +7,8 @@ SRCS = main.cpp \
 		Channel.cpp \
 		Parser.cpp \
 		Dispatcher.cpp \
+		ServerContext.cpp \
+		
 			
 SRCS := $(addprefix $(SRC_DIR)/, $(SRCS))
 OBJ_DIR = objs

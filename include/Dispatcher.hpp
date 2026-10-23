@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/21 17:55:59 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/21 18:19:20 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/23 16:30:26 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 
 # include "mini_irc.hpp"
 # include "IDispatcher.hpp"
-
-
+# include "IServerContext.hpp"
+# include "ServerTypes.hpp"
 
 /***
  * @addtogroup Dispatcher
@@ -28,7 +28,7 @@
 class Dispatcher : public IDispatcher
 {
 	public:
-		Dispatcher();
+		Dispatcher(IServerContext &context);
 		virtual ~Dispatcher();
 
 		/***
@@ -38,6 +38,8 @@ class Dispatcher : public IDispatcher
 		 * @return The response string.
 		 */
 		virtual std::string dispatch(Client *client, const std::string &line);
+	private:
+		IServerContext &_context;
 };
 
 #endif

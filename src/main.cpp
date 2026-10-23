@@ -6,12 +6,13 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 15:17:02 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/05 18:55:50 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/23 16:28:26 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Server.hpp"
 #include "../include/Dispatcher.hpp"
+#include "../include/ServerContext.hpp"
 
 /***
  * global shutdown flag. This variable is set to 1 when the server receives a SIGINT signal (Ctrl+C).
@@ -54,7 +55,8 @@ int main(int argc, char **argv)
 
     try
     {
-        Dispatcher dispatcher;
+		ServerContext context(password);
+        Dispatcher dispatcher(context);
         Server server(port, password, dispatcher);
         server.runServer(g_shutdown);
 		std::cout << "\nSIGINT received. Shutting down the server..." << std::endl;

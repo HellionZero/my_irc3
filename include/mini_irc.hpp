@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 16:16:19 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/21 18:15:15 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/23 16:00:08 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,5 +77,7 @@ typedef enum commandList
 	COMMAND_QUIT,
 
 } t_commandList;
+
+
 
 #endif
