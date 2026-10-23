@@ -14,6 +14,7 @@
 # define SERVERCONTEXT_HPP
 
 #include "IServerContext.hpp"
+#include "ServerTypes.hpp"
 
 class ServerContext : public IServerContext
 {
@@ -25,8 +26,13 @@ class ServerContext : public IServerContext
 		virtual Client *findClientByNick(const std::string &nick);
 		virtual bool isNickInUse(const std::string &nick) const;
 
+		ClientMap &clients(void);
+		ChannelMap &channels(void);
+
 	private:
 		std::string _password;
+		ClientMap _clients;
+		ChannelMap _channels;
 };
 
 #endif

@@ -57,7 +57,7 @@ int main(int argc, char **argv)
     {
 		ServerContext context(password);
         Dispatcher dispatcher(context);
-        Server server(port, password, dispatcher);
+        Server server(port, context, dispatcher);
         server.runServer(g_shutdown);
 		std::cout << "\nSIGINT received. Shutting down the server..." << std::endl;
     }

@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 16:20:15 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/23 16:09:17 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/23 16:39:23 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include "Client.hpp"
 # include "Channel.hpp"
 # include "IDispatcher.hpp"
+# include "ServerContext.hpp"
 # include "ServerTypes.hpp"
 
 class Server
@@ -28,7 +29,7 @@ class Server
 		 * @param password The password required to connect to the server.
 		 * @param dispatcher The dispatcher to use for handling commands.
 		 */
-		Server(int port, const std::string &password, IDispatcher &dispatcher);
+		Server(int port, ServerContext &context, IDispatcher &dispatcher);
 		~Server();
 
 		/***
@@ -44,18 +45,18 @@ class Server
 		void runServer(volatile sig_atomic_t &shutdownFlag);
 	private:
 
-		ChannelMap	_channels;
 
 		Server(const Server &other);
 		Server &operator=(const Server &other);
 
 		int 				_port;
-		std::string			_password;
 		int 				_listenSocket;
 		bool				_isRunning;
 		std::vector<pollfd>	_pollFds;
-		ClientMap			_clients;
 		IDispatcher			&_dispatcher;
+		ServerContext		&_context;
+		ClientMap			&_clients;
+		ChannelMap			&_channels;
 
 		/* ----------- I/O LAYER -------------------*/
 

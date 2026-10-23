@@ -12,8 +12,10 @@
 
 #include "../include/Server.hpp"
 
-Server::Server(int port, const std::string &password, IDispatcher &dispatcher)
-	: _port(port), _password(password), _listenSocket(-1), _isRunning(false), _dispatcher(dispatcher)
+Server::Server(int port, ServerContext &context, IDispatcher &dispatcher)
+	: _port(port), _listenSocket(-1), _isRunning(false),
+	  _dispatcher(dispatcher), _context(context),
+	  _clients(context.clients()), _channels(context.channels())
 {
 }
 

@@ -23,18 +23,31 @@ const std::string &ServerContext::getPass(void) const
 
 Client *ServerContext::findClientByNick(const std::string &nick)
 {
-	(void)nick;
-	// This method should search for a client by their nickname.
-	// Since we don't have access to the client list here, this is just a placeholder.
-	// In a real implementation, you would need to have access to the client list.
+	for (ClientMap::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		if (it->second->getNick() == nick)
+			return it->second;
+	}
 	return NULL;
 }
 
 bool ServerContext::isNickInUse(const std::string &nick) const
 {
-	(void)nick;
-	// This method should check if a nickname is already in use.
-	// Since we don't have access to the client list here, this is just a placeholder.
-	// In a real implementation, you would need to have access to the client list.
+	for (ClientMap::const_iterator it = _clients.begin();
+		it != _clients.end(); ++it)
+	{
+		if (it->second->getNick() == nick)
+			return true;
+	}
 	return false;
+}
+
+ClientMap &ServerContext::clients(void)
+{
+	return _clients;
+}
+
+ChannelMap &ServerContext::channels(void)
+{
+	return _channels;
 }
