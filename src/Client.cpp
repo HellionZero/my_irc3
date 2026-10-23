@@ -16,7 +16,8 @@
 #include <unistd.h>
 
 Client::Client(int socketFd, const std::string &hostname) :
-	_fd(socketFd), _host(hostname), _nick(""), _user(""), _state(HANDSHAKE), _inBuf(""), _outBuf("")
+	_fd(socketFd), _host(hostname), _nick(""), _user(""), _state(HANDSHAKE),
+	_inBuf(""), _outBuf(""), _passwordAccepted(false)
 {}
 
 Client::~Client()
@@ -37,6 +38,8 @@ Client::State	Client::getState() const { return _state; }
 void			Client::setNick(const std::string &nick) { _nick = nick; }
 void			Client::setUser(const std::string &user) { _user = user; }
 void			Client::setState(State state) { _state = state; }
+bool			Client::hasAcceptedPassword(void) const { return _passwordAccepted; }
+void			Client::setPasswordAccepted(bool accepted) { _passwordAccepted = accepted; }
 
 void			Client::appendInput(const char *data, std::size_t n)
 {

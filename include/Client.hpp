@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 15:12:34 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/05 17:48:24 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/23 17:34:08 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,21 +46,23 @@ class Client
 		void setNick(const std::string &nick);
 		void setUser(const std::string &user);
 		void setState(State state);
+		bool hasAcceptedPassword(void) const;
+		void setPasswordAccepted(bool accepted);
 
 		/* input */
 
-		void appendInput(const char *data, std::size_t n);
+		void 		appendInput(const char *data, std::size_t n);
 		std::size_t inputBufferSize(void) const;
-		bool hasCompleteLine(void) const;
-		bool popLine(std::string &line);
+		bool 		hasCompleteLine(void) const;
+		bool 		popLine(std::string &line);
 
 		/* output */
 
-		bool queueOutput(const std::string &line);
-		bool hasPendingOutput(void) const;
+		bool 				queueOutput(const std::string &line);
+		bool 				hasPendingOutput(void) const;
 		const std::string  &outputBuffer(void) const;
-		void consumeOutput(std::size_t n);
-
+		void 				consumeOutput(std::size_t n);
+		
 	private:
 		int          _fd;
 		std::string  _host;
@@ -69,6 +71,7 @@ class Client
 		State        _state;
 		std::string  _inBuf;
 		std::string  _outBuf;
+		bool         _passwordAccepted;
 };
 
 #endif

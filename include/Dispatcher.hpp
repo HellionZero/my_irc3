@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/21 17:55:59 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/23 16:30:26 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/23 17:32:49 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include "mini_irc.hpp"
 # include "IDispatcher.hpp"
 # include "IServerContext.hpp"
+# include "Parser.hpp"
 # include "ServerTypes.hpp"
 
 /***
@@ -40,6 +41,15 @@ class Dispatcher : public IDispatcher
 		virtual std::string dispatch(Client *client, const std::string &line);
 	private:
 		IServerContext &_context;
+
+		std::string handlePass(Client *client, const Parser::Command &command);
+		std::string handleNick(Client *client, const Parser::Command &command);
+		std::string handleUser(Client *client, const Parser::Command &command);
+		std::string makeNumeric(Client *client, int code,
+			const std::string &message) const;
+		std::string clientName(const Client *client) const;
+		std::string upper(const std::string &value) const;
+		bool 		tryRegister(Client *client) const;
 };
 
 #endif

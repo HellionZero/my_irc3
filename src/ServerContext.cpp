@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/23 16:23:52 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/23 16:24:43 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/23 16:54:49 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,12 +42,12 @@ bool ServerContext::isNickInUse(const std::string &nick) const
 	return false;
 }
 
-ClientMap &ServerContext::clients(void)
+ClientMap &ServerContext::getClients(void)
 {
 	return _clients;
 }
 
-ChannelMap &ServerContext::channels(void)
+ChannelMap &ServerContext::getChannels(void)
 {
 	return _channels;
 }

@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 15:17:14 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/06 18:55:15 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/23 16:55:30 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 Server::Server(int port, ServerContext &context, IDispatcher &dispatcher)
 	: _port(port), _listenSocket(-1), _isRunning(false),
 	  _dispatcher(dispatcher), _context(context),
-	  _clients(context.clients()), _channels(context.channels())
+	  _clients(context.getClients()), _channels(context.getChannels())
 {
 }
 
