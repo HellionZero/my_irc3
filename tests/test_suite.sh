@@ -5,6 +5,7 @@ set -eu
 TEST_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SERVER_TEST="${TEST_DIR}/server_test.sh"
 CLIENT_TEST="${TEST_DIR}/client_test.sh"
+MEMORY_TEST="${TEST_DIR}/memory_test.sh"
 SERVER_EXECUTABLE="${TEST_DIR}/../ircserv"
 
 RUN_TESTS=1
@@ -31,6 +32,8 @@ if [ $RUN_TESTS -eq 1 ]; then
 	${SERVER_TEST}
 	echo "Running client tests..."
 	${CLIENT_TEST}
+	echo "Running memory tests..."
+	${MEMORY_TEST}
 	echo "Cleaning build artifacts..."
 	make -C "${TEST_DIR}/.." fclean
 fi
