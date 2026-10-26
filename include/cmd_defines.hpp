@@ -6,12 +6,18 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/21 18:06:04 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/23 17:08:13 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/26 13:54:54 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CMD_DEFINES_HPP
 # define CMD_DEFINES_HPP
+
+/***
+ * @brief Defines codes for exit status and conventions needed in the IRC protocol.
+ * @details This header file contains the definitions for various error codes and
+ * reply codes used in the IRC protocol.
+ */
 
 # define END_HANDLER "\r\n"
 

@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 16:16:19 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/23 16:00:08 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/26 14:10:06 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,12 @@
 # define BOLD "\033[1m"
 
 # define SERVER_VERSION "mini_irc v3.0"
-# define MAX_LINE_LIMIT 512
-# define MAX_INPUT_BUFFER 4096
-# define MAX_OUTPUT_BUFFER 65536
-# define MAX_CYCLE_LINES 16
+# define BUFFER_DEFAULT_SIZE 1024
+# define MAX_BUFFER_SIZE 65536 /// the maximum size of the buffer for a client, in bytes
+# define MAX_LINE_LIMIT 512 /// the maximum length of a line in the IRC protocol, including the trailing CRLF
+# define MAX_INPUT_BUFFER 4096 /// the maximum size of the input buffer for a client, in bytes, following the IRC protocol specification
+# define MAX_OUTPUT_BUFFER 65536 /// the maximum size of the output buffer for a client, in bytes
+# define MAX_CYCLE_LINES 16 /// the maximum number of lines to process from a client's input buffer in a single event loop iteration
 
 # include <iostream>
 # include <string>
@@ -50,7 +52,7 @@
 # include <exception>
 
 /***
- * File to store all the necessary includes, defines, and enums for the mini IRC server project.
+ * File to store all the necessary includes and enums for the mini IRC server project.
  */
 
 typedef enum fontSelector

@@ -46,6 +46,8 @@ std::string Dispatcher::dispatch(Client *client, const std::string &line)
 		return handleNick(client, command);
 	if (command._name == "USER")
 		return handleUser(client, command);
+	if (command._name == "QUIT")
+		return handleQuit(client, command);
 	return makeNumeric(client, ERR_UNKNOWNCOMMAND,
 		command._name + " :Unknown command");
 }
@@ -114,6 +116,23 @@ std::string Dispatcher::handleUser(Client *client,
 		return makeNumeric(client, RPL_WELCOME,
 			":Welcome to the IRC server");
 	return "";
+}
+
+std::string Dispatcher::handleQuit(Client *client,
+	const Parser::Command &command)
+{
+	std::string message;
+
+	if (command._params.size() > 1)
+		return makeNumeric(client, ERR_NEEDMOREPARAMS,
+			"QUIT :Too many parameters");
+	if (!command._params.empty())
+		message = command._params[0];
+	client->setState(Client::DISCONNECTING);
+	if (message.empty())
+		message = "Client Quit";
+	return std::string(":") + clientName(client) + " QUIT :" + message
+		+ END_HANDLER;
 }
 
 std::string Dispatcher::makeNumeric(Client *client, int code,

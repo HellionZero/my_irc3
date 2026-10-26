@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 15:17:14 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/23 16:55:30 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/26 14:13:26 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ void Server::setupServerSocket(void)
 
 void Server::setNonBlocking(int socketFd)
 {
-	if (fcntl(socketFd, F_SETFL, O_NONBLOCK) < 0)
+	if (fcntl(socketFd, F_SETFL, O_NONBLOCK) < 0) /// if the fcntl() call fails, throw a runtime error with the error message
         throw std::runtime_error(
             std::string("fcntl(F_SETFL) failed: ") + std::strerror(errno));
 }
@@ -230,7 +230,7 @@ void Server::acceptNewClient()
 			if (errno == EINTR)
 				continue; // interrupted by signal, try again
 			if (errno == ECONNABORTED)
-    			continue;
+    			continue; // connection was aborted, try again
 			if (errno == EAGAIN || errno == EWOULDBLOCK)
 				break; // no more clients to accept
 			throw std::runtime_error(
@@ -246,14 +246,14 @@ void Server::acceptNewClient()
 			continue;
 		}
 
-		char hostBuf[INET_ADDRSTRLEN];
-		if (inet_ntop(AF_INET, &peer.sin_addr, hostBuf, sizeof(hostBuf)) == NULL)
+		char hostBuf[INET_ADDRSTRLEN]; /// buffer to hold the string representation of the client's IP address
+		if (inet_ntop(AF_INET, &peer.sin_addr, hostBuf, sizeof(hostBuf)) == NULL) /// if the conversion fails, close the client socket and continue to the next iteration
 		{
 			close(clientFd);
 			continue;
 		}
 
-		Client *client = NULL;
+		Client *client = NULL; // initialize the client pointer to NULL, to be assigned later after successful creation
 		try
 		{
 			client = new Client(clientFd, std::string(hostBuf));
@@ -263,10 +263,10 @@ void Server::acceptNewClient()
 			close(clientFd);
 			throw;
 		}
-		if (!client->queueOutput(":server NOTICE * :Connected. MVP mode.\r\n"))
+		if (!client->queueOutput(":server NOTICE * :Connected. MVP mode.\r\n")) // if the initial output exceeds the limit of 1024 characters, disconnect the client and throw an exception
 		{
-			_clients.erase(clientFd);
-			delete client;
+			_clients.erase(clientFd); /// erase the client from the map of clients, if it was added before the exception was thrown
+			delete client; /// delete the client object to free memory, as it was not successfully added to the map of clients
 			throw std::runtime_error("initial client output exceeds limit");
 		}
 		_clients.insert(std::make_pair(clientFd, client));
@@ -283,13 +283,13 @@ void Server::handleClientInput(int clientFd)
     if (client == NULL)
         return;
 
-    char buf[4096];
-    const std::size_t maxBytesPerEvent = 16 * 1024;
-    std::size_t bytesReadThisEvent = 0;
-    bool peerClosed = false;
+    char buf[MAX_INPUT_BUFFER]; // buffer to hold the data read from the client socket
+    const std::size_t maxBytesPerEvent = BUFFER_DEFAULT_SIZE * MAX_CYCLE_LINES; // maximum number of bytes to read from the client socket in a single event
+    std::size_t bytesReadThisEvent = 0; /// initialize the number of bytes read from the client socket in this event to 0
+    bool peerClosed = false; /// flag to indicate if the client has closed the connection, initialized to false
 
     while (bytesReadThisEvent < maxBytesPerEvent
-        && client->inputBufferSize() < MAX_INPUT_BUFFER)
+        && client->inputBufferSize() < MAX_INPUT_BUFFER) /// loop until the maximum number of bytes per event is reached or the client's input buffer is full
     {
         std::size_t bytesToRead = maxBytesPerEvent - bytesReadThisEvent;
         if (bytesToRead > sizeof(buf))
@@ -297,9 +297,9 @@ void Server::handleClientInput(int clientFd)
         if (bytesToRead > MAX_INPUT_BUFFER - client->inputBufferSize())
             bytesToRead = MAX_INPUT_BUFFER - client->inputBufferSize();
 
-        ssize_t n = recv(clientFd, buf, bytesToRead, 0);
+        ssize_t n = recv(clientFd, buf, bytesToRead, 0); /// read data from the client socket into the buffer
 
-        if (n > 0)
+        if (n > 0) /// if data was read from the client socket, append it to the client's input buffer and update the number of bytes read in this event
         {
             client->appendInput(buf, static_cast<std::size_t>(n));
             bytesReadThisEvent += static_cast<std::size_t>(n);
@@ -310,10 +310,10 @@ void Server::handleClientInput(int clientFd)
             peerClosed = true;
             break;
         }
-		if (errno == EINTR)
+		if (errno == EINTR) /// if the recv() call was interrupted by a signal, continue to the next iteration of the loop to try again
 			continue; // interrupted by signal, try again
-        if (errno == EAGAIN || errno == EWOULDBLOCK)
-            break;
+        if (errno == EAGAIN || errno == EWOULDBLOCK) 
+            break; /// break if the recv() call would block, indicating that there is no more data to read from the client socket at this time
 
         // real error
         disconnectClient(clientFd);
@@ -352,7 +352,7 @@ void Server::handleClientInput(int clientFd)
         return;
 	}
 
-    if (peerClosed)
+    if (peerClosed) /// alter the state of the client to DISCONNECTING if the peer has closed the connection, and disconnect the client if there is no pending output
     {
         client->setState(Client::DISCONNECTING);
         if (!client->hasPendingOutput())
@@ -396,25 +396,15 @@ void Server::handleClientOutput(int clientFd)
 
 void Server::disconnectClient(int clientFd)
 {
-    ClientIt it = _clients.find(clientFd);
+    ClientIt it = _clients.find(clientFd); /// create an iterator to the client in the _clients map using the clientFd
     if (it == _clients.end())
         return;
 
-    Client *client = it->second;
+    Client *client = it->second; /// get the Client pointer from the iterator
+    if (client == NULL)
+        return; // if the Client pointer is NULL, return without doing anything
 
-    for (ChannelIt channelIt = _channels.begin();
-        channelIt != _channels.end();)
-    {
-        Channel *channel = channelIt->second;
-        channel->removeMember(clientFd);
-        if (channel->isEmpty())
-        {
-            delete channel;
-            _channels.erase(channelIt++);
-        }
-        else
-            ++channelIt;
-    }
+    _context.removeClientFromChannels(clientFd);
 
     _clients.erase(it);
     delete client;
@@ -438,12 +428,29 @@ void Server::sendToClient(Client *client, const std::string &message)
     buildPollFds();
 }
 
+void Server::broadcastToClients(const std::string &message, int excludedFd)
+{
+    for (ClientIt it = _clients.begin(); it != _clients.end(); ++it)
+    {
+        if (it->first != excludedFd)
+            sendToClient(it->second, message);
+    }
+}
+
 
 void Server::processLine(Client *client, const std::string &line)
 {
 	std::string response = _dispatcher.dispatch(client, line);
 	if (!response.empty())
-		sendToClient(client, response);
+	{
+		if (client->getState() == Client::DISCONNECTING)
+		{
+			broadcastToClients(response, client->getFd());
+			disconnectClient(client->getFd());
+		}
+		else
+			sendToClient(client, response);
+	}
 }
 
 // ============================================================================

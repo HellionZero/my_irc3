@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 16:59:53 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/09/30 17:10:51 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/26 14:17:12 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ Client::State	Client::getState() const { return _state; }
 void			Client::setNick(const std::string &nick) { _nick = nick; }
 void			Client::setUser(const std::string &user) { _user = user; }
 void			Client::setState(State state) { _state = state; }
+
 bool			Client::hasAcceptedPassword(void) const { return _passwordAccepted; }
 void			Client::setPasswordAccepted(bool accepted) { _passwordAccepted = accepted; }
 

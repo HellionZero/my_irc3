@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/23 16:14:09 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/23 16:19:28 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/26 13:48:57 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 
 # include "mini_irc.hpp"
 # include "Client.hpp"
+
+/// @brief Interface class for the ServerContext class. The interface is needed to
+/// allow for dependency injection and testing of the Dispatcher class.
 
 class IServerContext
 {

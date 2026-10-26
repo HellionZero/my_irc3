@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/09 16:20:15 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/23 16:39:23 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/26 13:56:58 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,11 +44,37 @@ class Server
 		 */
 		void runServer(volatile sig_atomic_t &shutdownFlag);
 	private:
-
+		/***
+		 * @brief Copy constructor and assignment operator are private 
+		 * to prevent copying of the Server class.
+		 * The Server class manages resources such as sockets and 
+		 * client connections, and copying it could lead
+		 */
 
 		Server(const Server &other);
 		Server &operator=(const Server &other);
 
+		/***
+		 * variables:
+		 * 
+		 * _port: The port on which the server will listen for 
+		 * incoming connections.
+		 * _listenSocket: The socket file descriptor for the 
+		 * listening socket.
+		 * _isRunning: A flag indicating whether the server is 
+		 * currently running.
+		 * _pollFds: A vector of pollfd structures used for polling
+		 * the listening socket and client sockets for events.
+		 * &_dispatcher: A reference to the dispatcher used for handling commands.
+		 * &_context: A reference to the server context, which manages 
+		 * the state of the server, including clients and channels.
+		 * &_clients: A reference to the map of connected clients,
+		 * where the key is the client's file descriptor and the value 
+		 * is a pointer to the Client
+		 * &_channels: A reference to the map of channels, 
+		 * where the key is the channel name and the value 
+		 * is a pointer to the Channel.
+		 */
 		int 				_port;
 		int 				_listenSocket;
 		bool				_isRunning;
@@ -115,6 +141,7 @@ class Server
 		void	disconnectClient(int clientFd);
 
 		void sendToClient(Client *client, const std::string &message);
+		void broadcastToClients(const std::string &message, int excludedFd);
 
 		/* --------------------- PROTOCOL LAYER ---------------------*/
 		void processLine(Client *client, const std::string &line);

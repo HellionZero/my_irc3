@@ -181,6 +181,16 @@ sock.sendall(b"first\r\nsecond\r\nthird\r\n")
 receive_until(sock, b" 421 * THIRD :Unknown command\r\n")
 sock.close()
 
+leaver = connect()
+watcher = connect()
+register(leaver, "leaver", "leaver")
+register(watcher, "watcher", "watcher")
+leaver.sendall(b"QUIT :leaving now\r\n")
+receive_until(watcher, b":leaver QUIT :leaving now\r\n")
+close_until_eof(leaver)
+leaver.close()
+watcher.close()
+
 sock = connect()
 sock.sendall(b"x" * 513 + b"\r\n")
 close_until_eof(sock)
@@ -223,6 +233,7 @@ pass "registro com PASS, NICK e USER em ordens diferentes"
 pass "respostas numéricas para comandos inválidos e reregistro"
 pass "fragmentação, múltiplas linhas e conexões simultâneas"
 pass "limites de linha, buffer de entrada e desconexões abruptas"
+pass "QUIT notificou os demais clientes e encerrou o remetente"
 
 kill -INT "$SERVER_PID"
 if ! wait "$SERVER_PID"; then

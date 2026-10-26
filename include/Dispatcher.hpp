@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/10/21 17:55:59 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/23 17:32:49 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/26 14:21:16 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,13 +42,45 @@ class Dispatcher : public IDispatcher
 	private:
 		IServerContext &_context;
 
+		/**
+		 * @brief Handles the PASS command.
+		 * 
+		 * This function checks if the client is already registered, 
+		 * if the command has the correct number of parameters, and
+		 * if the provided password matches the server's password.
+		 * If any of these checks fail, it returns the appropriate
+		 * error message.
+		 * @param client The client that sent the command.
+		 * @param command The parsed command.
+		 * @return The response string.
+		 */
 		std::string handlePass(Client *client, const Parser::Command &command);
 		std::string handleNick(Client *client, const Parser::Command &command);
 		std::string handleUser(Client *client, const Parser::Command &command);
+		std::string handleQuit(Client *client, const Parser::Command &command);
+		/**
+		 * @brief Generates a numeric reply string for the client.
+		 * @param client The client to send the reply to.
+		 * @param code The numeric code for the reply.
+		 * @param message The message for the reply.
+		 * @return The generated reply string.
+		 */
 		std::string makeNumeric(Client *client, int code,
 			const std::string &message) const;
 		std::string clientName(const Client *client) const;
+		/**
+		 * @brief Converts a string to uppercase.
+		 * 
+		 * helper function to convert a string to uppercase, to normalize
+		 * command names.
+		 * @param value The string to convert.
+		 * @return The converted string.
+		 */
 		std::string upper(const std::string &value) const;
+		/**
+		 * @brief Attempts to register a client if it has
+		 * provided the correct password, nickname, and username.
+		 */
 		bool 		tryRegister(Client *client) const;
 };
 

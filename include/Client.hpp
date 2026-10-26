@@ -6,7 +6,7 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 15:12:34 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/10/23 17:34:08 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/26 14:10:58 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ class Client
 		void setNick(const std::string &nick);
 		void setUser(const std::string &user);
 		void setState(State state);
+
+		/* password verification */
 		bool hasAcceptedPassword(void) const;
 		void setPasswordAccepted(bool accepted);
 

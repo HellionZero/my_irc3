@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../include/ServerContext.hpp"
+#include "../include/Channel.hpp"
 
 ServerContext::ServerContext(const std::string &password) : _password(password) {}
 
@@ -50,4 +51,63 @@ ClientMap &ServerContext::getClients(void)
 ChannelMap &ServerContext::getChannels(void)
 {
 	return _channels;
+}
+
+Channel *ServerContext::findChannel(const std::string &name)
+{
+	ChannelIt it = _channels.find(name);
+	if (it == _channels.end())
+		return NULL;
+	return it->second;
+}
+
+Channel *ServerContext::createChannel(const std::string &name)
+{
+	if (name.empty() || findChannel(name) != NULL)
+		return NULL;
+	Channel *channel = new Channel(name);
+	_channels.insert(std::make_pair(name, channel));
+	return channel;
+}
+
+bool ServerContext::addClientToChannel(const std::string &name, int clientFd)
+{
+	Channel *channel = findChannel(name);
+	if (channel == NULL)
+		channel = createChannel(name);
+	if (channel == NULL)
+		return false;
+	channel->addMember(clientFd);
+	return true;
+}
+
+bool ServerContext::removeClientFromChannel(const std::string &name,
+	int clientFd)
+{
+	ChannelIt it = _channels.find(name);
+	if (it == _channels.end())
+		return false;
+	it->second->removeMember(clientFd);
+	if (it->second->isEmpty())
+	{
+		delete it->second;
+		_channels.erase(it);
+	}
+	return true;
+}
+
+void ServerContext::removeClientFromChannels(int clientFd)
+{
+	for (ChannelIt it = _channels.begin(); it != _channels.end();)
+	{
+		Channel *channel = it->second;
+		channel->removeMember(clientFd);
+		if (channel->isEmpty())
+		{
+			delete channel;
+			_channels.erase(it++);
+		}
+		else
+			++it;
+	}
 }
