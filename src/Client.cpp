@@ -6,16 +6,18 @@
 /*   By: lsarraci <lsarraci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/30 16:59:53 by lsarraci          #+#    #+#             */
-/*   Updated: 2026/09/30 17:10:51 by lsarraci         ###   ########.fr       */
+/*   Updated: 2026/10/26 14:17:12 by lsarraci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/Client.hpp"
+#include "../include/mini_irc.hpp"
 
 #include <unistd.h>
 
 Client::Client(int socketFd, const std::string &hostname) :
-	_fd(socketFd), _host(hostname), _nick(""), _user(""), _state(HANDSHAKE), _inBuf(""), _outBuf("")
+	_fd(socketFd), _host(hostname), _nick(""), _user(""), _state(HANDSHAKE),
+	_inBuf(""), _outBuf(""), _passwordAccepted(false)
 {}
 
 Client::~Client()
@@ -37,9 +39,22 @@ void			Client::setNick(const std::string &nick) { _nick = nick; }
 void			Client::setUser(const std::string &user) { _user = user; }
 void			Client::setState(State state) { _state = state; }
 
+bool			Client::hasAcceptedPassword(void) const { return _passwordAccepted; }
+void			Client::setPasswordAccepted(bool accepted) { _passwordAccepted = accepted; }
+
 void			Client::appendInput(const char *data, std::size_t n)
 {
     _inBuf.append(data, n);
+}
+
+std::size_t		Client::inputBufferSize(void) const
+{
+	return _inBuf.size();
+}
+
+bool			Client::hasCompleteLine(void) const
+{
+	return _inBuf.find('\n') != std::string::npos;
 }
 
 bool			Client::popLine(std::string &out)
@@ -58,9 +73,14 @@ bool			Client::popLine(std::string &out)
     return true;
 }
 
-void Client::queueOutput(const std::string &line)
+bool Client::queueOutput(const std::string &line)
 {
+    if (line.size() > MAX_OUTPUT_BUFFER
+        || _outBuf.size() > MAX_OUTPUT_BUFFER - line.size())
+        return false;
+
     _outBuf += line;
+    return true;
 }
 
 bool Client::hasPendingOutput(void) const
@@ -80,4 +100,3 @@ void Client::consumeOutput(std::size_t n)
     else
         _outBuf.erase(0, n);
 }
-

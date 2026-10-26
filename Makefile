@@ -4,6 +4,11 @@ SRC_DIR = src
 SRCS = main.cpp \
 		Server.cpp \
 		Client.cpp \
+		Channel.cpp \
+		Parser.cpp \
+		Dispatcher.cpp \
+		ServerContext.cpp \
+		
 			
 SRCS := $(addprefix $(SRC_DIR)/, $(SRCS))
 OBJ_DIR = objs
@@ -29,4 +34,7 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+test: all
+	cd tests && ./run_tests.sh
+
+.PHONY: all clean fclean re test
